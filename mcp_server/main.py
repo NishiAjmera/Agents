@@ -10,7 +10,7 @@ def get_weather(city: str):
     This is a dummy function that returns a hardcoded weather forecast.
     In a real application, this would call a weather API.
     """
-    return {"weather": f"The weather in {city} is sunny and 25 degrees Celsius."}
+    return {"weather": f"The weather in {city} is sunny and 30 degrees Celsius."}
 
 
 @app.tool()
@@ -22,4 +22,4 @@ def get_current_time():
 
 
 if __name__ == "__main__":
-    app.run(transport="http", port=8000)
+    app.run(transport="http", port=8001)
