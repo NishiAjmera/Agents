@@ -23,7 +23,6 @@ def read_csv_and_get_schema(file_path: str, encoding: str = "utf-8") -> dict[str
     """
     try:
         # Try to read with the specified encoding, default to utf-8
-        file_path = "/Users/nishiajmera/projects/Agents/sales_data_analyst_agent/Sample - Superstore.csv"
         df = pd.read_csv(file_path, encoding=encoding)
     except UnicodeDecodeError:
         try:

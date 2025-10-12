@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, File, UploadFile, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
@@ -6,6 +6,8 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 import uvicorn
+import shutil
+import tempfile
 
 # from pprint import pformat
 from agent import root_agent
@@ -29,10 +31,10 @@ runner = Runner(
 sessions_store = {}
 
 
-class AgentRequest(BaseModel):
-    message: str
-    user_id: Optional[str] = "default_user"
-    session_id: Optional[str] = None
+# class AgentRequest(BaseModel):
+#     message: Optional[str] = None
+#     user_id: Optional[str] = "default_user"
+#     session_id: Optional[str] = None
 
 
 class AgentResponse(BaseModel):
@@ -42,7 +44,12 @@ class AgentResponse(BaseModel):
 
 
 @app.post("/chat")
-async def chat(request: AgentRequest):
+async def chat(
+    file: UploadFile = File(...),
+    message: Optional[str] = Form(None),
+    user_id: Optional[str] = Form("default_user"),
+    session_id: Optional[str] = Form(None),
+):
     """
     Endpoint to interact with the sales data analyst agent.
     """
@@ -51,28 +58,33 @@ async def chat(request: AgentRequest):
        """
     try:
         # Get or create session
-        session_key = (
-            f"{request.user_id}_{request.session_id}"
-            if request.session_id
-            else request.user_id
-        )
+        session_key = f"{user_id}_{session_id}" if session_id else user_id
 
         # if session_key not in sessions_store:
         session = await session_service.create_session(
             app_name="social_media_assistant",
-            user_id=request.user_id,
-            session_id=request.session_id,
+            user_id=user_id,
+            session_id=session_id,
         )
         sessions_store[session_key] = session
         # else:
         #     session = sessions_store[session_key]
 
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".csv") as tmp:
+            shutil.copyfileobj(file.file, tmp)
+            tmp_path = tmp.name
+
         # Process the message
         events_iterator = runner.run_async(
-            user_id=request.user_id,
-            session_id=request.session_id,
+            user_id=user_id,
+            session_id=session_id,
             new_message=types.Content(
-                role="user", parts=[types.Part(text=request.message)]
+                role="user",
+                parts=[
+                    types.Part(
+                        text=f"read_csv_and_get_schema(file_path='{tmp_path}')\n{message or ''}"
+                    )
+                ],
             ),
         )
 
@@ -102,14 +114,16 @@ async def chat(request: AgentRequest):
                 break
 
         return AgentResponse(
-            responses=responses, session_id=session.id, user_id=request.user_id
+            responses=responses, session_id=session.id, user_id=user_id
         )
 
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Error processing request: {str(e)}"
         )
+    finally:
+        file.file.close()
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)
