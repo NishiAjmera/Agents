@@ -1,6 +1,9 @@
 import pandas as pd
 from google.adk.agents import Agent
 from typing import Any
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # In-memory storage for the DataFrame
 data_store: dict[str, Any] = {"dataframe": None}
@@ -20,6 +23,7 @@ def read_csv_and_get_schema(file_path: str, encoding: str = "utf-8") -> dict[str
     """
     try:
         # Try to read with the specified encoding, default to utf-8
+        file_path = "/Users/nishiajmera/projects/Agents/sales_data_analyst_agent/Sample - Superstore.csv"
         df = pd.read_csv(file_path, encoding=encoding)
     except UnicodeDecodeError:
         try:
