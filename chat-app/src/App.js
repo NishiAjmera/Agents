@@ -4,7 +4,7 @@ import "./App.css";
 const UploadIcon = () => (
   <svg
     className="upload-icon"
-    xmlns="http://www.w.org/2000/svg"
+    xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 24 24"
     strokeWidth={1.5}
@@ -18,20 +18,30 @@ const UploadIcon = () => (
   </svg>
 );
 
+const TypingLoader = () => (
+  <div className="loader-container">
+    <div className="typing-indicator">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+  </div>
+);
+
 function App() {
   const [message, setMessage] = useState("");
   const [file, setFile] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
   const chatHistoryRef = useRef(null);
 
   useEffect(() => {
-    // Scroll to the bottom of the chat history when it updates
     if (chatHistoryRef.current) {
       chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
     }
-  }, [chatHistory]);
+  }, [chatHistory, isLoading]);
 
   const handleSendMessage = async () => {
     if (!file) {
@@ -46,6 +56,7 @@ function App() {
     const userMessage = message;
     setChatHistory((prev) => [...prev, { type: "user", text: userMessage }]);
     setMessage("");
+    setIsLoading(true);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -79,6 +90,8 @@ function App() {
         ...prev,
         { type: "bot", text: "Error: Could not connect to the server." },
       ]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -154,7 +167,7 @@ function App() {
       </div>
       <div className="chat-main">
         <div className="chat-history" ref={chatHistoryRef}>
-          {chatHistory.length === 0 && (
+          {chatHistory.length === 0 && !isLoading && (
             <div className="bot-message">
               Hello! Please upload a CSV, JSON, or XLSX file and ask a question
               to begin.
@@ -168,6 +181,7 @@ function App() {
               {msg.text}
             </div>
           ))}
+          {isLoading && <TypingLoader />}
         </div>
         <div className="chat-input-area">
           <div className="message-input-container">
@@ -178,12 +192,12 @@ function App() {
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
               placeholder="Type your message..."
-              disabled={!file}
+              disabled={!file || isLoading}
             />
             <button
               className="send-button"
               onClick={handleSendMessage}
-              disabled={!file}
+              disabled={!file || isLoading}
             >
               Send
             </button>
