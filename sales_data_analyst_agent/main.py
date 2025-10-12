@@ -1,9 +1,10 @@
 from fastapi import FastAPI, HTTPException, File, UploadFile, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
+from google.protobuf.json_format import MessageToDict
 from google.genai import types
 import uvicorn
 import shutil
@@ -41,6 +42,7 @@ class AgentResponse(BaseModel):
     responses: List[str]
     session_id: str
     user_id: str
+    visualization: Optional[Dict[str, Any]] = None
 
 
 @app.post("/chat")
@@ -90,16 +92,25 @@ async def chat(
 
         responses = []
         final_response_text = ""
+        visualization_data = None
 
         async for event in events_iterator:
-            # if event.content and event.content.parts:
-            #     for part in event.content.parts:
-            #         if part.function_call:
-            #             formatted_call = f"Function Call - {part.function_call.name}:\n{pformat(part.function_call.model_dump(), indent=2, width=80)}"
-            #             responses.append(formatted_call)
-            #         elif part.function_response:
-            #             formatted_response = f"Function Response:\n{pformat(part.function_response.model_dump(), indent=2, width=80)}"
-            #             responses.append(formatted_response)
+            if event.content and event.content.parts:
+                for part in event.content.parts:
+                    if (
+                        part.function_response
+                        and part.function_response.name == "generate_visualization_data"
+                    ):
+                        # Access response directly - it should be a dict or dict-like object
+                        tool_output = part.function_response.response
+
+                        # Handle if it's already a dict
+                        if isinstance(tool_output, dict):
+                            if (
+                                tool_output.get("status") == "success"
+                                and "visualization" in tool_output
+                            ):
+                                visualization_data = tool_output["visualization"]
 
             # Handle final response
             if event.is_final_response():
@@ -114,7 +125,10 @@ async def chat(
                 break
 
         return AgentResponse(
-            responses=responses, session_id=session.id, user_id=user_id
+            responses=responses,
+            session_id=session.id,
+            user_id=user_id,
+            visualization=visualization_data,
         )
 
     except Exception as e:
