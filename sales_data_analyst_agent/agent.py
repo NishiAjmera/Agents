@@ -1,7 +1,8 @@
 import pandas as pd
 from google.adk.agents import Agent
-from typing import Any
+from typing import Any, Dict, Literal
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
@@ -84,6 +85,46 @@ def execute_query(expression: str) -> dict[str, Any]:
         }
 
 
+def generate_visualization_data(
+    chart_type: Literal["bar", "pie", "scatter"], pandas_expression: str
+) -> Dict[str, Any]:
+    """
+    Generates data suitable for D3.js visualization based on a pandas expression.
+
+    Args:
+        chart_type (Literal["bar", "pie", "scatter"]): The type of chart to generate.
+        pandas_expression (str): The pandas expression to execute to get the data.
+                                 Example: "df.groupby('Category')['Sales'].sum().reset_index().to_dict('records')"
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the chart type and the data, or an error message.
+    """
+    df = data_store.get("dataframe")
+    if df is None:
+        return {
+            "status": "error",
+            "error_message": "No data has been loaded. Please read a CSV file first.",
+        }
+
+    try:
+        # Execute the expression to get the data
+        data = eval(pandas_expression, {"pd": pd, "df": df})
+
+        # Ensure data is in a suitable format (list of dicts)
+        if isinstance(data, (pd.DataFrame, pd.Series)):
+            data = data.to_dict("records")
+
+        return {
+            "status": "success",
+            "visualization": {"chart_type": chart_type, "data": data},
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "error_message": f"An error occurred while generating visualization data: {e}",
+        }
+
+
 root_agent = Agent(
     name="csv_data_analyst_agent",
     model="gemini-2.5-flash",
@@ -93,9 +134,12 @@ root_agent = Agent(
         "1. For EVERY query Call the `read_csv_and_get_schema` tool first to determine the schema and number of rows. "
         "2. Based on the user's question and the schema, formulate a valid pandas expression to execute. "
         "   The dataframe is available in a variable named `df`. The expression MUST be a valid, executable pandas operation. "
-        "   For example: `df[df['column'] == 'value'].to_json(orient='records')` or `df.groupby('column')['other_column'].sum().to_json()`"
-        "3. Call the `execute_query` tool with the expression string you generated. "
-        "4. Present the resulting JSON data to the user in a clear, readable format."
+        "   For example, for a bar chart of sales by category, the expression might be: "
+        "   `df.groupby('Category')['Sales'].sum().reset_index().to_dict('records')` "
+        "3. If the user asks for a visualization or a chart, use the `generate_visualization_data` tool. "
+        "   - Choose a suitable chart_type from the available options ('bar', 'pie', 'scatter'). "
+        "   - Create a pandas_expression that aggregates and formats the data appropriately for the chosen chart. "
+        "4. Present the resulting data to the user in a clear, readable format. If you generated a visualization, mention the chart."
     ),
-    tools=[read_csv_and_get_schema, execute_query],
+    tools=[read_csv_and_get_schema, execute_query, generate_visualization_data],
 )
