@@ -1,0 +1,102 @@
+[
+  {
+    "timestamp": "2025-11-04T20:26:22.553141",
+    "type": "meal",
+    "details": "had tea in the morning"
+  },
+  {
+    "timestamp": "2025-11-04T20:26:22.555471",
+    "type": "meal",
+    "details": "had fruits in breakfast"
+  },
+  {
+    "timestamp": "2025-11-04T20:35:51.227822",
+    "type": "workout",
+    "details": "Bodyweight squats 20 reps 3 sets, 10 burpees 3 sets, 10 bicycle crunches 3 sets, 10 reverse crunches 3 sets, 3 sets of high planks."
+  },
+  {
+    "timestamp": "2025-11-04T20:37:12.006712",
+    "type": "meal",
+    "details": "Breakfast: Tea with 1 spoon of sugar and milk, 7 almonds, 4 walnuts, and some snacks."
+  },
+  {
+    "timestamp": "2025-11-04T20:38:01.166017",
+    "type": "meal",
+    "details": "Had 5-10 sweet mathari for breakfast along with tea with 1 spoon of sugar and milk, 7 almonds, and 4 walnuts."
+  },
+  {
+    "timestamp": "2025-11-04T20:40:15.825279",
+    "type": "meal",
+    "details": "Lunch: 2 chapati, karela veg, 1 cup daal, and a bowl of rice"
+  },
+  {
+    "timestamp": "2025-11-04T20:40:15.827049",
+    "type": "snack",
+    "details": "Afternoon snack: pomegranate and apple"
+  },
+  {
+    "timestamp": "2025-11-04T20:40:15.828005",
+    "type": "meal",
+    "details": "Dinner: kadi pakoda, dal, and 2 chapati"
+  },
+  {
+    "timestamp": "2025-11-04T20:41:51.675519",
+    "type": "hydration",
+    "details": "2 liters of water"
+  },
+  {
+    "timestamp": "2025-11-04T20:41:51.676953",
+    "type": "hydration",
+    "details": "1 glass of milk before bed"
+  },
+  {
+    "timestamp": "2025-11-04T20:41:51.677541",
+    "type": "activity",
+    "details": "around 2000 steps"
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.485978",
+    "type": "workout",
+    "details": "Bodyweight squats 20 reps 3 sets, 10 burpees 3 sets, 10 bicycle crunches 3 sets, 10 reverse crunches 3 sets, 3 sets of high planks."
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.486920",
+    "type": "meal",
+    "details": "Breakfast: Tea with 1 spoon sugar and milk, 7 almonds, 4 walnuts, 5-10 sweet mathari."
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.487572",
+    "type": "meal",
+    "details": "Lunch: 2 chapati, karela veg, 1 cup daal, 1 bowl rice."
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.488084",
+    "type": "snack",
+    "details": "Afternoon snack: Pomegranate and apple."
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.488562",
+    "type": "meal",
+    "details": "Dinner: Kadi pakoda, dal, 2 chapati."
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.489044",
+    "type": "hydration",
+    "details": "2 litres of water."
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.489725",
+    "type": "hydration",
+    "details": "1 glass of milk before bed."
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.490487",
+    "type": "steps",
+    "details": "Approximately 2000 steps."
+  },
+  {
+    "timestamp": "2025-11-04T20:42:30.491272",
+    "type": "sleep",
+    "details": "8 hours of sleep."
+  }
+]
